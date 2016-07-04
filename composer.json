@@ -1,0 +1,22 @@
+{
+  "name": "afk11/mailman",
+  "license": "Unlicense",
+  "autoload": {
+    "psr-4": {
+      "Afk11\\Mailman\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Afk11\\Mailman\\Tests\\": "test/"
+    }
+  },
+  "require": {
+    "doctrine/dbal": "~2.5",
+    "symfony/console": "~3",
+    "paragonie/random_compat": "~1.4|~2.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~5.0"
+  }
+}
