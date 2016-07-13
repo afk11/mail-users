@@ -1,6 +1,6 @@
 <?php
 
-namespace Afk11\Mailman;
+namespace Afk11\MailUsers;
 
 
 class Password

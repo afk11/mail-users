@@ -1,10 +1,10 @@
 <?php
 
-namespace Afk11\Mailman\Console\Command;
+namespace Afk11\MailUsers\Console\Command;
 
-use Afk11\Mailman\Config\Config;
-use Afk11\Mailman\Config\ConfigFile;
-use Afk11\Mailman\Db\Db;
+use Afk11\MailUsers\Config\Config;
+use Afk11\MailUsers\Config\ConfigFile;
+use Afk11\MailUsers\Db\Db;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Console\Command\Command;
 

@@ -1,7 +1,7 @@
 <?php
 
-namespace Afk11\Mailman\Entities;
-use Afk11\Mailman\Db\NewUserAccount;
+namespace Afk11\MailUsers\Entities;
+use Afk11\MailUsers\Db\NewUserAccount;
 
 /**
  * Class VirtualDomain

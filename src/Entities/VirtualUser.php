@@ -1,7 +1,7 @@
 <?php
 
-namespace Afk11\Mailman\Entities;
-use Afk11\Mailman\Db\NewVirtualAlias;
+namespace Afk11\MailUsers\Entities;
+use Afk11\MailUsers\Db\NewVirtualAlias;
 
 /**
  * @Entity @Table(name="virtual_users")

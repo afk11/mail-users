@@ -1,6 +1,6 @@
 <?php
 
-namespace Afk11\Mailman\Db;
+namespace Afk11\MailUsers\Db;
 
 
 class NewUserAccount

@@ -1,9 +1,9 @@
 <?php
 
-namespace Afk11\Mailman\Console\Command;
+namespace Afk11\MailUsers\Console\Command;
 
-use Afk11\Mailman\Config\Config;
-use Afk11\Mailman\Config\ConfigFile;
+use Afk11\MailUsers\Config\Config;
+use Afk11\MailUsers\Config\ConfigFile;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 

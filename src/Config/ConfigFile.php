@@ -1,6 +1,6 @@
 <?php
 
-namespace Afk11\Mailman\Config;
+namespace Afk11\MailUsers\Config;
 
 
 class ConfigFile

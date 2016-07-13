@@ -1,14 +1,14 @@
 <?php
 
-namespace Afk11\Mailman\Console;
+namespace Afk11\MailUsers\Console;
 
 
-use Afk11\Mailman\Console\Command\Domain\AddDomainCommand;
-use Afk11\Mailman\Console\Command\Domain\DeleteDomainCommand;
-use Afk11\Mailman\Console\Command\Domain\ListDomainCommand;
-use Afk11\Mailman\Console\Command\Domain\ListUsersCommand;
-use Afk11\Mailman\Console\Command\User\AddUserCommand;
-use Afk11\Mailman\Console\Command\GenConfigCommand;
+use Afk11\MailUsers\Console\Command\Domain\AddDomainCommand;
+use Afk11\MailUsers\Console\Command\Domain\DeleteDomainCommand;
+use Afk11\MailUsers\Console\Command\Domain\ListDomainCommand;
+use Afk11\MailUsers\Console\Command\Domain\ListUsersCommand;
+use Afk11\MailUsers\Console\Command\GenConfigCommand;
+use Afk11\MailUsers\Console\Command\User\AddUserCommand;
 
 class Application extends \Symfony\Component\Console\Application
 {

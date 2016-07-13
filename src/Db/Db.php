@@ -1,11 +1,11 @@
 <?php
 
-namespace Afk11\Mailman\Db;
+namespace Afk11\MailUsers\Db;
 
 
-use Afk11\Mailman\Config\Config;
-use Afk11\Mailman\Entities\VirtualDomain;
-use Afk11\Mailman\Entities\VirtualUser;
+use Afk11\MailUsers\Config\Config;
+use Afk11\MailUsers\Entities\VirtualDomain;
+use Afk11\MailUsers\Entities\VirtualUser;
 use Doctrine\DBAL\Connection;
 
 class Db

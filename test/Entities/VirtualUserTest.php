@@ -1,10 +1,10 @@
 <?php
 
-namespace Afk11\Mailman\Tests\Entities;
+namespace Afk11\MailUsers\Tests\Entities;
 
 
-use Afk11\Mailman\Entities\VirtualUser;
-use Afk11\Mailman\Tests\AbstractTestCase;
+use Afk11\MailUsers\Entities\VirtualUser;
+use Afk11\MailUsers\Tests\AbstractTestCase;
 
 class VirtualUserTest extends AbstractTestCase
 {

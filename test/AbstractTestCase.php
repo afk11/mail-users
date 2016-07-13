@@ -1,6 +1,6 @@
 <?php
 
-namespace Afk11\Mailman\Tests;
+namespace Afk11\MailUsers\Tests;
 
 
 class AbstractTestCase extends \PHPUnit_Framework_TestCase

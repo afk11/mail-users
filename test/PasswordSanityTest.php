@@ -1,9 +1,9 @@
 <?php
 
-namespace Afk11\Mailman\Tests;
+namespace Afk11\MailUsers\Tests;
 
 
-use Afk11\Mailman\Password;
+use Afk11\MailUsers\Password;
 
 class PasswordSanityTest extends AbstractTestCase
 {

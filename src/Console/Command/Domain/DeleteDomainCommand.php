@@ -1,10 +1,9 @@
 <?php
 
-namespace Afk11\Mailman\Console\Command\Domain;
+namespace Afk11\MailUsers\Console\Command\Domain;
 
-use Afk11\Mailman\Config\Config;
-use Afk11\Mailman\Console\Command\AbstractCommand;
-use Afk11\Mailman\Entities\VirtualDomain;
+use Afk11\MailUsers\Console\Command\AbstractCommand;
+use Afk11\MailUsers\Entities\VirtualDomain;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

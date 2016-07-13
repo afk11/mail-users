@@ -1,6 +1,6 @@
 <?php
 
-namespace Afk11\Mailman\Entities;
+namespace Afk11\MailUsers\Entities;
 
 /**
  * @Entity @Table(name="virtual_aliases")
