@@ -3,7 +3,7 @@
 namespace Afk11\Mailman\Db;
 
 
-use Afk11\Mailman\Console\Config;
+use Afk11\Mailman\Config\Config;
 use Afk11\Mailman\Entities\VirtualDomain;
 use Afk11\Mailman\Entities\VirtualUser;
 use Doctrine\DBAL\Connection;
@@ -66,14 +66,14 @@ class Db
         $this->tblAliases = $config->getValue(Config::TBL_ALIASES);
         $this->tblDomains = $config->getValue(Config::TBL_DOMAINS);
         
-        $this->sqlCreateUser = $conn->prepare("INSERT INTO :tblUsers (`domain_id`, `password`, `email`) VALUES (:domainId, ENCRYPT(:password, CONCAT('$6$', SUBSTRING(SHA(RAND()), -16))), :email)");
-        $this->sqlListUsers = $conn->prepare("SELECT u.id, u.domain_id, u.email, u.password FROM :tblUsers u");
-        $this->sqlListUsersByDomain = $conn->prepare("SELECT u.id, u.domain_id, u.email, u.password FROM :tblUsers u WHERE u.domainId = :domainId");
+        $this->sqlCreateUser = $conn->prepare("INSERT INTO ".$this->tblUsers." (`domain_id`, `password`, `email`) VALUES (?, ENCRYPT(?, CONCAT('$6$', SUBSTRING(SHA(RAND()), -16))), ?)");
+        $this->sqlListUsers = $conn->prepare("SELECT u.id, u.domain_id, u.email, u.password FROM ? u");
+        $this->sqlListUsersByDomain = $conn->prepare("SELECT u.id, u.domain_id, u.email, u.password FROM ? u WHERE u.domainId = ?");
 
-        $this->sqlCreateAlias = $conn->prepare("INSERT INTO :tblAliases (`domain_id`, `source`, `destination`) VALUES (:domainId, :src, :dest)");
+        $this->sqlCreateAlias = $conn->prepare("INSERT INTO ".$this->tblUsers." (`domain_id`, `source`, `destination`) VALUES (?,?,?)");
 
-        $this->sqlCreateDomain = $conn->prepare("INSERT INTO :tblDomains (`name`) VALUES (:name)");
-        $this->sqlListDomains = $conn->prepare("SELECT d.id, d.name FROM :tblDomains d");
+        $this->sqlCreateDomain = $conn->prepare("INSERT INTO ? (name) VALUES (?)");
+        $this->sqlListDomains = $conn->prepare("SELECT * FROM :tblDomains");
     }
 
     /**
@@ -90,7 +90,7 @@ class Db
      */
     public function getUserFromRow(array $row)
     {
-        return new VirtualUser($row['id'], $row['domainId'], $row['password'], $row['email']);
+        return new VirtualUser($row['id'], $row['domain_id'], $row['password'], $row['email']);
     }
 
     /**
@@ -103,22 +103,13 @@ class Db
     }
 
     /**
-     * @return VirtualDomain[]
-     */
-    public function listDomains()
-    {
-        $this->sqlListDomains->execute(['tblDomains' => $this->tblDomains]);
-        $rows = $this->sqlListDomains->fetchAll(\PDO::FETCH_ASSOC);
-        $results = array_map([$this, 'getDomainFromRow'], $rows);
-        return $results;
-    }
-
-    /**
      * @return VirtualUser[]
      */
     public function listUsers()
     {
-        $this->sqlListUsers->execute(['tblUsers' => $this->tblUsers]);
+        $this->sqlListUsers->execute([
+            'tblUsers' => $this->tblUsers
+        ]);
         $rows = $this->sqlListUsers->fetchAll(\PDO::FETCH_ASSOC);
         $results = array_map([$this, 'getUserFromRow'], $rows);
         return $results;
@@ -130,9 +121,8 @@ class Db
      */
     public function listUsersByDomain(VirtualDomain $domain)
     {
-        $this->sqlListUsersByDomain->execute(['tblUsers' => $this->tblUsers, 'domainId'=>$domain->getId()]);
-        $rows = $this->sqlListUsers->fetchAll(\PDO::FETCH_ASSOC);
-        $results = array_map([$this, 'getUserFromRow'], $rows);
+        $results = $this->conn->fetchAll('SELECT u.id, u.domain_id, u.email, u.password FROM '.$this->tblUsers  .' u WHERE u.domain_id = ?', [$domain->getId()]);
+        $results = array_map([$this, 'getUserFromRow'], $results);
         return $results;
     }
 
@@ -142,14 +132,23 @@ class Db
      */
     public function createAccount(NewUserAccount $account)
     {
-        $this->sqlCreateUser->execute([
-            'tblUsers' => $this->tblUsers,
-            'domainId' => $account->getDomainId(),
-            'password' => $account->getPassword(),
-            'email' => $account->getEmail()
-        ]);
+        $this->sqlCreateUser->bindParam(1, $account->getDomainId());
+        $this->sqlCreateUser->bindParam(2, $account->getPassword());
+        $this->sqlCreateUser->bindParam(3, $account->getEmail());
+        $this->sqlCreateUser->execute();
 
         return $this->conn->lastInsertId();
+    }
+
+    /**
+     * @param string $email
+     * @return VirtualUser
+     */
+    public function fetchAccountByEmail($email)
+    {
+        $results = $this->conn->fetchAssoc('SELECT u.id, u.email, u.password, u.domainId FROM ' . $this->tblUsers  . ' u where u.email = ?', [$email]);
+        $account = new VirtualUser($results['id'], $results['domain_id'], $results['password'], $results['email']);
+        return $account;
     }
 
     /**
@@ -158,14 +157,21 @@ class Db
      */
     public function createAlias(NewVirtualAlias $alias)
     {
-        $this->sqlCreateUser->execute([
-            'tblDomains' => $this->tblDomains,
+        return $this->conn->insert($this->tblDomains, [
             'domainId' => $alias->getDomainId(),
             'src' => $alias->getSource(),
             'dest' => $alias->getDestination()
         ]);
+    }
 
-        return $this->conn->lastInsertId();
+    /**
+     * @param VirtualDomain $domain
+     * @return int
+     * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
+     */
+    public function deleteDomain(VirtualDomain $domain)
+    {
+        return $this->conn->delete($this->tblDomains, ['id' => $domain->getId()]);
     }
 
     /**
@@ -174,11 +180,16 @@ class Db
      */
     public function addDomain($name)
     {
-        $this->sqlCreateUser->execute([
-            'tblDomains' => $this->tblDomains,
+        return $this->conn->insert($this->tblDomains, [
             'name' => $name
         ]);
-
-        return $this->conn->lastInsertId();
+    }
+    
+    /**
+     * @return VirtualDomain[]
+     */
+    public function listDomains()
+    {
+        return array_map([$this, 'getDomainFromRow'], $this->conn->fetchAll('Select * from ' . $this->tblDomains));
     }
 }

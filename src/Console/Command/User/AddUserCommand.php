@@ -1,7 +1,9 @@
 <?php
 
-namespace Afk11\Mailman\Console\Command;
+namespace Afk11\Mailman\Console\Command\User;
 
+use Afk11\Mailman\Config\Config;
+use Afk11\Mailman\Console\Command\AbstractCommand;
 use Afk11\Mailman\Entities\VirtualDomain;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,6 +14,22 @@ class AddUserCommand extends AbstractCommand
 {
     protected $insecurePasswordLength = 6;
 
+    /**
+     *
+     */
+    protected function configure()
+    {
+        $this->setName('user:add')
+            ->setDescription('Creates a new user account');
+    }
+
+    /**
+     * @param string $strName
+     * @param QuestionHelper $questionHelper
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return string
+     */
     private function promptFor($strName, QuestionHelper $questionHelper, InputInterface $input, OutputInterface $output)
     {
         $question = new Question($strName . ": ");
@@ -19,11 +37,18 @@ class AddUserCommand extends AbstractCommand
             if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
                 throw new \InvalidArgumentException('Email formatted incorrectly');
             }
+            return $value;
         });
 
         return $questionHelper->ask($input, $output, $question);
     }
 
+    /**
+     * @param QuestionHelper $questionHelper
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return string
+     */
     private function promptForPassword(QuestionHelper $questionHelper, InputInterface $input, OutputInterface $output)
     {
         $question = new Question("Password: ");
@@ -32,16 +57,18 @@ class AddUserCommand extends AbstractCommand
             if (strlen($pass1) < $this->insecurePasswordLength) {
                 throw new \InvalidArgumentException('Insecure password (< '.$this->insecurePasswordLength.' characters)');
             }
+            return $pass1;
         });
         $pass1 = $questionHelper->ask($input, $output, $question);
 
-        $question2 = new Question("Password: ");
+        $question2 = new Question("Password (again): ");
         $question2->setHidden(true);
         $question2->setValidator(function ($pass2) use ($pass1) {
             $random = random_bytes(32);
             if (!hash_equals(hash('sha256', $random.$pass1), hash('sha256', $random.$pass2))) {
                 throw new \InvalidArgumentException("Passwords don't match");
             }
+            return $pass2;
         });
         $questionHelper->ask($input, $output, $question2);
         return $pass1;
@@ -63,19 +90,25 @@ class AddUserCommand extends AbstractCommand
         throw new \RuntimeException('Unknown domain');
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     */
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $config = $this->getConfig();
+
         $questionHelper = new QuestionHelper();
         $email = $this->promptFor('Email address', $questionHelper, $input, $output);
-        $password = $this->promptFor('Email address', $questionHelper, $input, $output);
+        $password = $this->promptForPassword($questionHelper, $input, $output);
         $parts = explode("@", $email);
 
-        $db = $this->getDb();
-        
-
-        /** @var VirtualDomain[] $domains */
-        $domains = $domainRepo->findAll();
+        $db = $this->getDb($config);
+        $domains = $db->listDomains();
         $domain = $this->searchForDomain($domains, $parts[1]);
-        $domain->createNewUser($email, $password);
+        $newUser = $domain->createUser($email, $password);
+        $db->createAccount($newUser);
+        
+        $output->writeln("<info>Account " . $email   . " was created!\n");
     }
 }

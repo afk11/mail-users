@@ -1,6 +1,6 @@
 <?php
 
-namespace Afk11\Mailman\Console;
+namespace Afk11\Mailman\Config;
 
 
 class Config
