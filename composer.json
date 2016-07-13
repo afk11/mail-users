@@ -1,6 +1,7 @@
 {
   "name": "afk11/mailusers",
   "license": "Unlicense",
+  "bin": ["bin/mailuser"],
   "autoload": {
     "psr-4": {
       "Afk11\\MailUsers\\": "src/"
